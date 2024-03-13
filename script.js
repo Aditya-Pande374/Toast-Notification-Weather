@@ -38,17 +38,175 @@ window.addEventListener("load", () => {
   const objectBGimage1 = new Background(bgImage1, canvas.width, canvas.height);
   const objectBGimage2 = new Background(bgImage2, canvas.width, canvas.height);
   const objectBGimage3 = new Background(bgImage3, canvas.width, canvas.height);
-
   const bgImages = [objectBGimage1, objectBGimage2, objectBGimage3];
+
+  // context.drawImage(this.objectImage, this.sX, this.sy, this.sWidth, this.sHeight, this.dX, this.dY, this.dWidth, this.dHeight);
+  //Floor Tiles
+  class Floor {
+    constructor(img, sx, sy, sw, sh, dx, dy, dw, dh) {
+        this.img = img;
+        this.sx = sx;
+        this.sy = sy;
+        this.sw = sw;
+        this.sh = sh;
+        this.dx = dx;
+        this.dy = dy;
+        this.dw = dw;
+        this.dh = dh;
+    }
+
+    draw(context) {
+        context.save();
+        context.drawImage(this.img, this.sx, this.sy, this.sw, this.sh, this.dx, this.dy, this.dw, this.dh);
+        context.restore();
+    }
+  }
+
+  //Tiles Images
+  const tilesImg1 = new Image();
+  tilesImg1.src = "./oak_woods_v1.0/oak_woods_v1.0/oak_woods_tileset.png"
+
+  const objecttiles1 = new Floor(tilesImg1, 120, 167, 72, 25, 0, 530, canvas.width/5, 100);
+  let k=0;
+  const floorObjects = [objecttiles1];
+  for(let i = 1; i<=5; i++){
+    k+=canvas.width/5;
+    floorObjects.push(new Floor(tilesImg1, 120, 167, 72, 25, k, 530, canvas.width/5, 100));
+  }
+
+  //Decorations
+  class Decorations {
+    constructor(img, sx, sy, sw, sh, dx, dy, dw, dh) {
+        this.img = img;
+        this.sx = sx;
+        this.sy = sy;
+        this.sw = sw;
+        this.sh = sh;
+        this.dx = dx;
+        this.dy = dy;
+        this.dw = dw;
+        this.dh = dh;
+    }
+
+    draw(context) {
+        context.save();
+        context.drawImage(this.img, this.sx, this.sy, this.sw, this.sh, this.dx, this.dy, this.dw, this.dh);
+        context.restore();
+    }
+  }
+
+  //Decoration Images
+  const shopImage = new Image();
+  shopImage.src = "./oak_woods_v1.0/oak_woods_v1.0/decorations/shop.png";
+
+  const shopObject = new Decorations(shopImage, 0, 0, 118, 114, 20, 232, 450, 350);
+
+  const lampImage = new Image();
+  lampImage.src = "./oak_woods_v1.0/oak_woods_v1.0/decorations/lamp.png";
+
+  const lampObject = new Decorations(lampImage, 0, 0, 23, 57, canvas.width-100, 292, 55, 240);
+  const decorObjects = [shopObject,lampObject];
+
+  //Player Character
+  class Player {
+    constructor(game) {
+        this.game = game;
+        this.maxX = this.game.width * 0.8;
+        this.minX = this.game.width * 0.01;
+
+        this.img = new Image();
+        this.img.src = "./Sprites/craftpix-net-230380-free-shinobi-sprites-pixel-art/Samurai/Idle.png";
+
+        this.sx = 0;
+        this.sy = 0;
+        this.sw = 127;
+        this.sh = 128;
+        this.dx = this.minX;
+        this.dy = 335;
+        this.dw = 190;
+        this.dh = 200;
+
+        this.currentFrame = 0;
+        this.totalFrame = 8;
+        this.framesDrawn = 0;
+    }
+
+    draw(context) {
+        context.save();
+        context.drawImage(this.img, this.sx, this.sy, this.sw, this.sh, this.dx, this.dy, this.dw, this.dh);
+        context.restore();
+    }
+    
+    update() {
+        if(this.game.kbrd.right){
+            this.currentFrame %= this.totalFrame;
+            this.sx = this.currentFrame*this.sw;
+            if(this.dx < this.maxX){
+                this.dx+=7;
+            }
+        }
+        if(this.game.kbrd.left){
+            this.currentFrame %= this.totalFrame;
+            this.sx = this.currentFrame*this.sw;
+            if(this.dx > this.minX){
+                this.dx-=7;
+            }
+        }
+
+        this.framesDrawn +=4;
+        if(this.framesDrawn >= 10) {
+            this.currentFrame+=1;
+            this.framesDrawn = 0;
+        }
+    }
+  }
 
   class Game {
     constructor(type) {
       this.canvas = type;
       this.width = this.canvas.width;
       this.height = this.canvas.height;
+
+      this.decor = new Decorations();
+      this.player = new Player(this);
+
+      this.kbrd = {
+        left: false,
+        right: false,
+        idle: true
+      }
+
+      addEventListener('keydown', (e)=>{
+        if(e.key === "ArrowLeft"){
+            this.kbrd.left = true;
+            this.kbrd.idle = false;
+            this.player.img.src = "./Sprites/craftpix-net-230380-free-shinobi-sprites-pixel-art/Samurai/Run-left.png";
+        }
+        if(e.key === "ArrowRight"){
+            this.kbrd.right = true;
+            this.kbrd.idle = false;
+            this.player.img.src = "./Sprites/craftpix-net-230380-free-shinobi-sprites-pixel-art/Samurai/Run.png";
+        }
+      })
+
+      addEventListener('keyup', (e)=>{
+        if(this.kbrd.left){
+            this.player.img.src = "./Sprites/craftpix-net-230380-free-shinobi-sprites-pixel-art/Samurai/idle-left.png";
+            this.kbrd.left = false;
+            this.kbrd.idle = true;
+        }
+        if(this.kbrd.right){
+            this.player.img.src = "./Sprites/craftpix-net-230380-free-shinobi-sprites-pixel-art/Samurai/Idle.png";
+            this.kbrd.right = false;
+            this.kbrd.idle = true;
+        }
+      })
     }
 
-    render(context) {}
+    render(context) {
+        this.player.draw(context);
+        this.player.update();
+    }
   }
 
   const game = new Game(canvas);
@@ -60,6 +218,16 @@ window.addEventListener("load", () => {
     bgImages.forEach((object) => {
       object.draw(ctx);
     });
+
+    //Floor
+    floorObjects.forEach((object) => {
+        object.draw(ctx);
+    })
+
+    //Decorations
+    decorObjects.forEach((object) => {
+        object.draw(ctx);
+    })
 
     game.render(ctx);
     requestAnimationFrame(animate);
