@@ -1,35 +1,41 @@
 * {
     list-style: none;
+    margin: 0;
+    padding: 0;
 }
 
 body {
-    margin: 0;
-    padding: 0;
     box-sizing: border-box;
-    width: 99.7vw;
-    height: 99.4vh;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
 }
 
 .game-container {
     height: 100%;
     width: 100%;
     position: relative;
-    border: 2px solid red;
+    z-index: 5;
+}
+
+#canvas {
+    height: 100%;
+    width: 100%;
+    z-index: 5;
 }
 
 .main-screen {
-    border: 2px solid red;
     position: absolute;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     width: 80%;
-    top: 2%;
+    top: 12%;
     left: 50%;
     transform: translateX(-50%);
     padding: 0;
-    
+    z-index: 1;
 }
 
 .main-screen i {
@@ -38,6 +44,5 @@ body {
 
 .main-screen p {
     width: 90%;
-    border: 2px solid red;
     padding: 5px;
 }
