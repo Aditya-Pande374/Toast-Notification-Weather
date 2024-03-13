@@ -1,0 +1,43 @@
+* {
+    list-style: none;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    width: 99.7vw;
+    height: 99.4vh;
+}
+
+.game-container {
+    height: 100%;
+    width: 100%;
+    position: relative;
+    border: 2px solid red;
+}
+
+.main-screen {
+    border: 2px solid red;
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 80%;
+    top: 2%;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 0;
+    
+}
+
+.main-screen i {
+    margin-right: 5px;
+}
+
+.main-screen p {
+    width: 90%;
+    border: 2px solid red;
+    padding: 5px;
+}
