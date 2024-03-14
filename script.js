@@ -58,7 +58,7 @@ window.addEventListener("load", () => {
       draw(context) {
           context.save();
           context.drawImage(this.img, this.sx, this.sy, this.sw, this.sh, this.dx, this.dy, this.dw, this.dh);
-          context.strokeRect(this.dx, this.dy, this.dw, this.dh);
+          // context.strokeRect(this.dx, this.dy, this.dw, this.dh);
           
           context.restore();
       }
@@ -148,7 +148,7 @@ window.addEventListener("load", () => {
           this.dh
         );
         
-        context.strokeRect(this.dx, this.dy, this.dw, this.dh);
+        // context.strokeRect(this.dx, this.dy, this.dw, this.dh);
         
         context.restore();
       }
@@ -203,6 +203,18 @@ window.addEventListener("load", () => {
         }
       }
 
+      idle() {
+        this.totalFrame = 3;
+        this.currentFrame %= this.totalFrame;
+        this.sx = this.currentFrame * this.sw;
+
+        this.framesDrawn += 1;        
+        if (this.framesDrawn >= 10) {
+          this.currentFrame += 1;
+          this.framesDrawn = 0;
+        } 
+      }
+
       update() {
         if (this.game.kbrd.right) {
           this.right();
@@ -213,12 +225,59 @@ window.addEventListener("load", () => {
         if(this.game.kbrd.attack && !this.game.direction){
           this.attackLeft();
         }
-        if(this.game.kbrd.attack && this.game.direction){
+        else if(this.game.kbrd.attack && this.game.direction){
           this.attackRight();
+        }
+        else{
+          this.idle();
         }
       }
     }
     
+    //Enemy Character
+
+    class Enemy {
+      constructor(game) {
+        this.game = game;
+        this.img = new Image();
+        this.img.src = "./Sprites/craftpix-net-230380-free-shinobi-sprites-pixel-art/Fighter/Idle-left.png";
+        this.sx = 0;
+        this.sy = 0;
+        this.sw = 127;
+        this.sh = 128;
+        this.dx = this.game.player.maxX;
+        this.dy = 335;
+        this.dw = 190;
+        this.dh = 200;
+
+        this.currentFrame = 0;
+        this.totalFrame = 3;
+        this.framesDrawn = 0;
+      }
+
+      draw(context) {
+        context.save();
+        context.drawImage(this.img, this.sx, this.sy, this.sw, this.sh, this.dx, this.dy, this.dw, this.dh);
+        // context.strokeRect(this.dx, this.dy, this.dw, this.dh);
+        context.restore();
+      }
+
+      update() {
+        if(this.game.player.dx >= this.dx-100 && this.game.kbrd.attack) {
+          this.img.src = "./Sprites/craftpix-net-230380-free-shinobi-sprites-pixel-art/Fighter/Hurt-left.png";
+        }else {
+          this.img.src = "./Sprites/craftpix-net-230380-free-shinobi-sprites-pixel-art/Fighter/Idle-left.png";
+        }
+        this.currentFrame %= this.totalFrame;
+        this.sx = this.currentFrame * this.sw + 10;
+
+        this.framesDrawn += 1;        
+        if (this.framesDrawn >= 10) {
+          this.currentFrame += 1;
+          this.framesDrawn = 0;
+        } 
+      }
+    }
 
     //Game Class
     class Game {
@@ -229,6 +288,7 @@ window.addEventListener("load", () => {
   
         this.decor = new Decorations();
         this.player = new Player(this);
+        this.enemy = new Enemy(this);
   
         this.kbrd = {
           left: false,
@@ -236,30 +296,51 @@ window.addEventListener("load", () => {
           idle: true,
           attack: false
         }
-
+        this.attackkeys = ["z","x","c","v"];
         this.direction = true; // true for right, false for left
   
         addEventListener("keydown", (e) => {
           if (e.key === "ArrowLeft") {
             this.kbrd.left = true;
             this.direction = false;
+            this.player.totalFrame = 6;
             this.kbrd.idle = false;
             this.player.img.src = "./Sprites/craftpix-net-230380-free-shinobi-sprites-pixel-art/Samurai/Run-left.png";
           }
           if (e.key === "ArrowRight") {
             this.direction = true;
             this.kbrd.right = true;
+            this.player.totalFrame = 6;
             this.kbrd.idle = false;
             this.player.img.src = "./Sprites/craftpix-net-230380-free-shinobi-sprites-pixel-art/Samurai/Run.png";
           }
 
-          if (e.key === "a") {
+          if (e.key === "z") {
             this.idle = false;
             this.kbrd.attack = true;
+            this.player.totalFrame = 6;
             if(this.direction)
             this.player.img.src = "./Sprites/craftpix-net-230380-free-shinobi-sprites-pixel-art/Samurai/Attack_1.png";
             else
             this.player.img.src = "./Sprites/craftpix-net-230380-free-shinobi-sprites-pixel-art/Samurai/Attack_1-left.png"
+          }
+          if (e.key === "x") {
+            this.idle = false;
+            this.kbrd.attack = true;
+            this.player.totalFrame = 3;
+            if(this.direction)
+            this.player.img.src = "./Sprites/craftpix-net-230380-free-shinobi-sprites-pixel-art/Samurai/Attack_2.png";
+            else
+            this.player.img.src = "./Sprites/craftpix-net-230380-free-shinobi-sprites-pixel-art/Samurai/Attack_2-left.png"
+          }
+          if (e.key === "c") {
+            this.idle = false;
+            this.kbrd.attack = true;
+            this.player.totalFrame = 3;
+            if(this.direction)
+            this.player.img.src = "./Sprites/craftpix-net-230380-free-shinobi-sprites-pixel-art/Samurai/Attack_3.png";
+            else
+            this.player.img.src = "./Sprites/craftpix-net-230380-free-shinobi-sprites-pixel-art/Samurai/Attack_3-left.png"
           }
         });
 
@@ -287,10 +368,13 @@ window.addEventListener("load", () => {
           }
         });
       }
-  
+
       render(context) {
           this.player.draw(context);
           this.player.update();
+
+          this.enemy.draw(context);
+          this.enemy.update();
       }
     }
   
